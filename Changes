@@ -30,6 +30,41 @@ Revision history for Perl extension Net::SSLeay.
 	  Update the previous minor releases to their latest versions. Add
 	  NetBSD to BSDs job and update the other BSDs and Alpine Linux jobs to
 	  cover additional and latest releases. Use the latest MacOS runners.
+	- Expose SSL_CTX_set_client_hello_cb for setting a callback
+	  the server calls when it processes a ClientHello. Expose the
+	  following functions that can be called only from the
+	  callback. None of these are available with LibreSSL.
+	  - SSL_client_hello_isv2
+	  - SSL_client_hello_get0_legacy_version
+	  - SSL_client_hello_get0_random
+	  - SSL_client_hello_get0_session_id
+	  - SSL_client_hello_get0_ciphers
+	  - SSL_client_hello_get0_compression_methods
+	  - SSL_client_hello_get1_extensions_present
+	  - SSL_client_hello_get_extension_order
+	  - SSL_client_hello_get0_ext
+	- Expose constants used by SSL_CTX_set_client_hello_cb related
+	  functions.
+	  - AD_ prefixed constants naming TLS alert codes for
+	    returning from a ClientHello callback or where alert types
+	    are used
+	  - CLIENT_HELLO_ERROR, CLIENT_HELLO_RETRY and
+	    CLIENT_HELLO_SUCCESS for returning from a ClientHello
+	    callback
+	  - TLSEXT_TYPE_ prefixed contants for naming TLS extension
+	    types
+	- Expose functions for setting up TLS PSK on the server
+	  side. Only SSL_CIPHER_find is available with LibreSSL.
+	  - SSL_use_psk_identity_hint
+	  - SSL_CTX_use_psk_identity_hint
+	  - SSL_set_psk_server_callback
+	  - SSL_CTX_set_psk_server_callback
+	  - SSL_set_psk_find_session_callback
+	  - SSL_CTX_set_psk_find_session_callback
+	  - SSL_SESSION_set1_master_key
+	  - SSL_SESSION_set_cipher
+	  - SSL_SESSION_set_protocol_version
+	  - SSL_CIPHER_find
 
 1.93_02 2023-02-22
 	- Update ppport.h to version 3.68. This eliminates thousands of
