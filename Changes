@@ -1,6 +1,6 @@
 Revision history for Perl extension Net::SSLeay.
 
-????
+1.93_03 2024-01-02
 	- Pass RAND_seed()'s sole argument to the underlying RAND_seed() function in
 	  libcrypto, rather than passing the value of a non-existent second argument.
 	  Fixes GH-427. Thanks to cgf1 for the report.
@@ -94,6 +94,69 @@ Revision history for Perl extension Net::SSLeay.
 	  testing and providing detailed test reports. Tested with GCC
 	  13 g++, Clang 17 clang++ and Visual Studio Community 2022
 	  C++ compilers. Discussion in GH-425 and GH-438.
+	- Add constants for OPENSSL_init_crypto and related functions:
+	  - CONF_MFLAGS_DEFAULT_SECTION
+	  - CONF_MFLAGS_IGNORE_ERRORS
+	  - CONF_MFLAGS_IGNORE_MISSING_FILE
+	  - CONF_MFLAGS_IGNORE_RETURN_CODES
+	  - CONF_MFLAGS_NO_DSO
+	  - CONF_MFLAGS_SILENT
+	  - OPENSSL_INIT_ADD_ALL_CIPHERS
+	  - OPENSSL_INIT_ADD_ALL_DIGESTS
+	  - OPENSSL_INIT_ASYNC
+	  - OPENSSL_INIT_ATFORK
+	  - OPENSSL_INIT_ENGINE_AFALG
+	  - OPENSSL_INIT_ENGINE_CAPI
+	  - OPENSSL_INIT_ENGINE_CRYPTODEV
+	  - OPENSSL_INIT_ENGINE_DYNAMIC
+	  - OPENSSL_INIT_ENGINE_OPENSSL
+	  - OPENSSL_INIT_ENGINE_PADLOCK
+	  - OPENSSL_INIT_ENGINE_RDRAND
+	  - OPENSSL_INIT_LOAD_CONFIG
+	  - OPENSSL_INIT_LOAD_CRYPTO_STRINGS
+	  - OPENSSL_INIT_LOAD_SSL_STRINGS
+	  - OPENSSL_INIT_NO_ADD_ALL_CIPHERS
+	  - OPENSSL_INIT_NO_ADD_ALL_DIGESTS
+	  - OPENSSL_INIT_NO_ATEXIT
+	  - OPENSSL_INIT_NO_LOAD_CONFIG
+	  - OPENSSL_INIT_NO_LOAD_CRYPTO_STRINGS
+	  - OPENSSL_INIT_NO_LOAD_SSL_STRINGS
+	- Expose functions for OpenSSL libcrypto and libssl
+	  initialisation, configuration and deinitialisation.
+	  These are available in OpenSSL 1.1.0 and later:
+	  - OPENSSL_init_ssl and OPENSSL_init_crypto
+	  - OPENSSL_cleanup, also in LibreSSL 3.6.0
+	  - OPENSSL_INIT_new and OPENSSL_INIT_free
+	  - OPENSSL_INIT_set_config_filename
+	  - OPENSSL_INIT_set_config_appname
+	  - OPENSSL_INIT_set_config_file_flags
+	- Add new test file 23_openssl_init.t for OPENSSL_init_ssl and
+	  related functions.
+	- Support finding OpenSSL libraries using
+	  ExtUtils::PkgConfig. Thanks to Paul Howarth for the patch.
+	- Fix a number of cases where variables were declared after
+	  code triggering Gcc and Clang warning
+	  -Wdeclaration-after-statement. This is supported by C
+	  language version C99 and used by Perl 5.35.5 and
+	  later. SSLeay.xs is likely compiled with compilers that do
+	  not support this, therefore such constructs are avoided in
+	  SSLeay.xs. Thanks to GitHub user bulk88 for the patch.
+	- Fix _CRT_SECURE_NO_DEPRECATE warning on Windows. Fix OpenSSL
+	  library file path detection loop in Makefile.PL. Both thanks
+	  to bulk88.
+	- Update Shining Light OpenSSL detection to work with OpenSSL
+	  1.1.1w, 3.0.12, 3.1.4 and 3.2.0 installers. Caveats: when
+	  both 32bit and 64bit versions are installed, OpenSSL library
+	  path detection may pick the wrong version. Static
+	  compilation needs seems not to work with the these
+	  versions. Thanks to bulk88 for the initial updates.
+	- Tone down Makefile.PL and README warning against mixing
+	  compilers and flags when compiling OpenSSL, Perl and
+	  Net::SSLeay. This may still be a requirement on some
+	  platforms, but, for example, with Linux and macOS mixing
+	  clang and gcc appears to work.
+	- Add general installation instructions in README. Thanks to
+	  GitHub user viviparous. Update README and README.OSX.
 
 1.93_02 2023-02-22
 	- Update ppport.h to version 3.68. This eliminates thousands of
