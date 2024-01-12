@@ -3,8 +3,8 @@
 # Copyright (c) 1996-2003 Sampo Kellomäki <sampo@iki.fi>
 # Copyright (c) 2005-2010 Florian Ragwitz <rafl@debian.org>
 # Copyright (c) 2005-2018 Mike McCauley <mikem@airspayce.com>
+# Copyright (c) 2018 Tuure Vartiainen <vartiait@radiatorsoftware.com>
 # Copyright (c) 2018- Chris Novakovic <chris@chrisn.me.uk>
-# Copyright (c) 2018- Tuure Vartiainen <vartiait@radiatorsoftware.com>
 # Copyright (c) 2018- Heikki Vatiainen <hvn@radiatorsoftware.com>
 #
 # All rights reserved.
@@ -70,7 +70,7 @@ $Net::SSLeay::how_random = 512;
 #   inc/Test/Net/SSLeay.pm
 #   inc/Test/Net/SSLeay/Socket.pm
 #   lib/Net/SSLeay/Handle.pm
-$VERSION = '1.93_03';
+$VERSION = '1.94';
 
 @ISA = qw(Exporter);
 

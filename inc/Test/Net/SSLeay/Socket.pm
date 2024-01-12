@@ -13,7 +13,7 @@ use Socket qw(
     inet_aton inet_ntoa pack_sockaddr_in unpack_sockaddr_in
 );
 
-our $VERSION = '1.93_03';
+our $VERSION = '1.94';
 
 my %PROTOS = (
     tcp => SOCK_STREAM,
@@ -134,7 +134,7 @@ Test::Net::SSLeay::Socket - Socket class for the Net-SSLeay test suite
 
 =head1 VERSION
 
-This document describes version 1.93_03 of Test::Net::SSLeay::Socket.
+This document describes version 1.94 of Test::Net::SSLeay::Socket.
 
 =head1 SYNOPSIS
 
@@ -310,13 +310,11 @@ the version of OpenSSL or LibreSSL you are using.
 
 Originally written by Chris Novakovic.
 
-Maintained by Chris Novakovic, Tuure Vartiainen and Heikki Vatiainen.
+Maintained by Chris Novakovic and Heikki Vatiainen.
 
 =head1 COPYRIGHT AND LICENSE
 
 Copyright 2020- Chris Novakovic <chris@chrisn.me.uk>.
-
-Copyright 2020- Tuure Vartiainen <vartiait@radiatorsoftware.com>.
 
 Copyright 2020- Heikki Vatiainen <hvn@radiatorsoftware.com>.
 

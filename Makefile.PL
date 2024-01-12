@@ -42,8 +42,8 @@ my %eumm_args = (
     'Sampo Kellomaki <sampo@iki.fi>',
     'Florian Ragwitz <rafl@debian.org>',
     'Mike McCauley <mikem@airspayce.com>',
-    'Chris Novakovic <chris@chrisn.me.uk>',
     'Tuure Vartiainen <vartiait@radiatorsoftware.com>',
+    'Chris Novakovic <chris@chrisn.me.uk>',
     'Heikki Vatiainen <hvn@radiatorsoftware.com>'
   ],
   VERSION_FROM => 'lib/Net/SSLeay.pm',
@@ -119,6 +119,10 @@ $eumm_args{CCFLAGS} = $Config{ccflags};
 # SSLeay.xs before perl.h is included (and therefore before its PERL_VERSION_*
 # macros are available).
 add_ccflag( $eumm_args{CCFLAGS}, "-DNET_SSLEAY_PERL_VERSION=" . $] * 1e6 );
+
+# Suppress deprecation warnings during compilation.
+# https://www.openssl.org/docs/manmaster/man7/openssl_user_macros.html
+add_ccflag( $eumm_args{CCFLAGS}, '-DOPENSSL_API_COMPAT=908' );
 
 # See if integers are only 32 bits long. If they are, add a flag to
 # CCFLAGS. Since OpenSSL 1.1.0, a growing number of APIs are using 64
@@ -315,12 +319,7 @@ EOM
         @{ $opts->{lib_links} } = map { $_ =~ s/32\b//g } @{ $opts->{lib_links} } if $Config{use64bitall};
     }
     else {
-        if ( eval { require ExtUtils::PkgConfig; ExtUtils::PkgConfig->VERSION('1.16') } && ExtUtils::PkgConfig->exists('openssl') ) {
-            push @{ $opts->{lib_links} }, map { s/^-l//; $_ } split(' ', ExtUtils::PkgConfig->libs_only_l('openssl'));
-        }
-        else {
-             push @{ $opts->{lib_links} }, qw( ssl crypto z );
-        }
+        push @{ $opts->{lib_links} }, qw( ssl crypto z );
 
         if (($Config{cc} =~ /aCC/i) && $^O eq 'hpux') {
             print "*** Enabling HPUX aCC options (+e)\n";
