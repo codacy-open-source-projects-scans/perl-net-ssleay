@@ -1,0 +1,488 @@
+# The CI workflow tests Net-SSLeay against the following setups:
+#
+# - OS: Ubuntu 24.04
+# - Perl: the latest patch release of every minor release since 5.8
+# - libssl: the latest patch release of every minor release between:
+#   - OpenSSL: 0.9.8 and 3.2
+#   - LibreSSL: 2.2 and 3.8
+#
+# - Non-x86 architectures on Alpine Linux and Ubuntu
+#
+# - Various BSDs with different LibreSSL and OpenSSL versions
+#
+# - Windows with Cygwin
+
+name: CI
+
+on:
+  push:
+    branches:
+      - '*'
+    tags-ignore:
+      - '*'
+  pull_request:
+
+env:
+  PERL_MM_USE_DEFAULT: 1
+  RELEASE_TESTING: 0
+
+jobs:
+  ubuntu-openssl:
+    name: 'Ubuntu 24.04 (Perl ${{ matrix.perl }}, OpenSSL ${{ matrix.openssl }})'
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        perl:
+          - '5.42'
+          - '5.40'
+          - '5.38'
+          - '5.36'
+          - '5.34'
+          - '5.32'
+          - '5.30'
+          - '5.28'
+          - '5.26'
+          - '5.24'
+          - '5.22'
+          - '5.20'
+          - '5.18'
+          - '5.16'
+          - '5.14'
+          - '5.12'
+          - '5.10'
+          - '5.8'
+        openssl:
+          - '3.5.0'
+          - '3.4.1'
+          - '3.3.3'
+          - '3.1.8'
+          - '3.0.16'
+          - '1.1.1w'
+          - '1.1.0l'
+          - '1.0.2u'
+          - '1.0.1u'
+          - '1.0.0t'
+          - '0.9.8zh'
+    steps:
+      - name: Check out
+        uses: actions/checkout@v4
+
+      - name: Install Perl ${{ matrix.perl }}
+        uses: shogo82148/actions-setup-perl@v1
+        with:
+          perl-version: ${{ matrix.perl }}
+
+      - name: 'Install OpenSSL ${{ matrix.openssl }}'
+        run: |
+          os="ubuntu-24.04"
+          ver="openssl-${{ matrix.openssl }}"
+
+          curl -L "https://github.com/p5-net-ssleay/ci-libssl/releases/download/$ver/$ver-$os.tar.xz" \
+            | tar -C $HOME -Jx
+
+      - name: Install dependencies
+        run: cpanm --quiet --installdeps --notest .
+
+      - name: Create makefile
+        run: |
+          LD_LIBRARY_PATH="$HOME/libssl/lib" \
+          OPENSSL_PREFIX="$HOME/libssl" \
+            perl Makefile.PL
+
+      - name: Build
+        run: |
+          LD_LIBRARY_PATH="$HOME/libssl/lib" \
+            make
+
+      - name: Run test suite
+        run: |
+          LD_LIBRARY_PATH="$HOME/libssl/lib" \
+            make test
+
+  ubuntu-libressl-2x:
+    name: 'Ubuntu 24.04 (Perl ${{ matrix.perl }}, LibreSSL 2.[2-9] ${{ matrix.libressl }})'
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        perl:
+          - '5.42'
+          - '5.40'
+          - '5.38'
+          - '5.36'
+          - '5.34'
+          - '5.32'
+          - '5.30'
+          - '5.28'
+          - '5.26'
+          - '5.24'
+          - '5.22'
+          - '5.20'
+          - '5.18'
+          - '5.16'
+          - '5.14'
+          - '5.12'
+          - '5.10'
+          - '5.8'
+        libressl:
+          - '2.9.2'
+          - '2.8.3'
+          - '2.7.5'
+          - '2.6.5'
+          - '2.5.5'
+          - '2.4.5'
+          - '2.3.10'
+          - '2.2.9'
+    steps:
+      - name: Check out
+        uses: actions/checkout@v4
+
+      - name: Install Perl ${{ matrix.perl }}
+        uses: shogo82148/actions-setup-perl@v1
+        with:
+          perl-version: ${{ matrix.perl }}
+
+      - name: 'Install LibreSSL ${{ matrix.libressl }}'
+        run: |
+          os="ubuntu-24.04"
+          ver="libressl-${{ matrix.libressl }}"
+
+          curl -L "https://github.com/p5-net-ssleay/ci-libssl/releases/download/$ver/$ver-$os.tar.xz" \
+            | tar -C $HOME -Jx
+
+      - name: Install dependencies
+        run: cpanm --quiet --installdeps --notest .
+
+      - name: Create makefile
+        run: |
+          LD_LIBRARY_PATH="$HOME/libssl/lib" \
+          OPENSSL_PREFIX="$HOME/libssl" \
+            perl Makefile.PL
+
+      - name: Build
+        run: |
+          LD_LIBRARY_PATH="$HOME/libssl/lib" \
+            make
+
+      - name: Run test suite
+        run: |
+          LD_LIBRARY_PATH="$HOME/libssl/lib" \
+            make test
+
+  ubuntu-libressl-3x:
+    name: 'Ubuntu 24.04 (Perl ${{ matrix.perl }}, LibreSSL 3.[0-9] ${{ matrix.libressl }})'
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        perl:
+          - '5.42'
+          - '5.40'
+          - '5.38'
+          - '5.36'
+          - '5.34'
+          - '5.32'
+          - '5.30'
+          - '5.28'
+          - '5.26'
+          - '5.24'
+          - '5.22'
+          - '5.20'
+          - '5.18'
+          - '5.16'
+          - '5.14'
+          - '5.12'
+          - '5.10'
+          - '5.8'
+        libressl:
+          - '3.9.2'
+          - '3.8.4'
+          - '3.7.3'
+          - '3.6.3'
+          - '3.5.4'
+          - '3.4.3'
+          - '3.3.6'
+          - '3.2.7'
+          - '3.1.5'
+          - '3.0.2'
+    steps:
+      - name: Check out
+        uses: actions/checkout@v4
+
+      - name: Install Perl ${{ matrix.perl }}
+        uses: shogo82148/actions-setup-perl@v1
+        with:
+          perl-version: ${{ matrix.perl }}
+
+      - name: 'Install LibreSSL ${{ matrix.libressl }}'
+        run: |
+          os="ubuntu-24.04"
+          ver="libressl-${{ matrix.libressl }}"
+
+          curl -L "https://github.com/p5-net-ssleay/ci-libssl/releases/download/$ver/$ver-$os.tar.xz" \
+            | tar -C $HOME -Jx
+
+      - name: Install dependencies
+        run: cpanm --quiet --installdeps --notest .
+
+      - name: Create makefile
+        run: |
+          LD_LIBRARY_PATH="$HOME/libssl/lib" \
+          OPENSSL_PREFIX="$HOME/libssl" \
+            perl Makefile.PL
+
+      - name: Build
+        run: |
+          LD_LIBRARY_PATH="$HOME/libssl/lib" \
+            make
+
+      - name: Run test suite
+        run: |
+          LD_LIBRARY_PATH="$HOME/libssl/lib" \
+            make test
+
+  ubuntu-libressl-4x:
+    name: 'Ubuntu 24.04 (Perl ${{ matrix.perl }}, LibreSSL 4.[0-9] ${{ matrix.libressl }})'
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        perl:
+          - '5.42'
+          - '5.40'
+          - '5.38'
+          - '5.36'
+          - '5.34'
+          - '5.32'
+          - '5.30'
+          - '5.28'
+          - '5.26'
+          - '5.24'
+          - '5.22'
+          - '5.20'
+          - '5.18'
+          - '5.16'
+          - '5.14'
+          - '5.12'
+          - '5.10'
+          - '5.8'
+        libressl:
+          - '4.1.0'
+          - '4.0.0'
+    steps:
+      - name: Check out
+        uses: actions/checkout@v4
+
+      - name: Install Perl ${{ matrix.perl }}
+        uses: shogo82148/actions-setup-perl@v1
+        with:
+          perl-version: ${{ matrix.perl }}
+
+      - name: 'Install LibreSSL ${{ matrix.libressl }}'
+        run: |
+          os="ubuntu-24.04"
+          ver="libressl-${{ matrix.libressl }}"
+
+          curl -L "https://github.com/p5-net-ssleay/ci-libssl/releases/download/$ver/$ver-$os.tar.xz" \
+            | tar -C $HOME -Jx
+
+      - name: Install dependencies
+        run: cpanm --quiet --installdeps --notest .
+
+      - name: Create makefile
+        run: |
+          LD_LIBRARY_PATH="$HOME/libssl/lib" \
+          OPENSSL_PREFIX="$HOME/libssl" \
+            perl Makefile.PL
+
+      - name: Build
+        run: |
+          LD_LIBRARY_PATH="$HOME/libssl/lib" \
+            make
+
+      - name: Run test suite
+        run: |
+          LD_LIBRARY_PATH="$HOME/libssl/lib" \
+            make test
+
+  non_x86_alpine:
+    name: "${{ matrix.platform.name }}/Alpine/${{ matrix.alpine_version }} (${{ matrix.package }})"
+
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        package:
+          - openssl
+          - libressl
+        platform:
+          - name: i386
+            docker_platform: linux/386
+          - name: s390x
+            docker_platform: linux/s390x
+          - name: arm32v6
+            docker_platform: linux/arm/v6
+          - name: arm32v7
+            docker_platform: linux/arm/v7
+          - name: arm64v8
+            docker_platform: linux/arm64/v8
+        alpine_version:
+          - '3.22'
+          - '3.21'
+          - '3.20'
+          - '3.19'
+          - '3.18'
+        # Alpine 3.18 and later on s390x do not have LibreSSL
+        exclude:
+          - package: libressl
+            platform:
+              name: s390x
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+            submodules: recursive
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+        with:
+          image: tonistiigi/binfmt:latest
+          platforms: all
+
+      # NB: “openssl” is correct, even for LibreSSL:
+      - name: Run tests on ${{ matrix.platform.name }}
+        run: docker run --rm --interactive --platform ${{ matrix.platform.docker_platform }} --mount type=bind,source=$(pwd),target=/host ${{ matrix.platform.name }}/alpine:${{ matrix.alpine_version}} sh -c "apk add perl-dev perl-app-cpanminus make gcc musl-dev zlib-dev ${{ matrix.package }}-dev openssl && perl -V && cd /host && cpanm --verbose --notest --installdeps . && perl Makefile.PL && make test"
+
+  non_x86_ubuntu:
+    name: "${{ matrix.platform.name }}/Ubuntu"
+
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        platform:
+          - name: i386
+            docker_platform: linux/386
+          - name: s390x
+            docker_platform: linux/s390x
+          - name: arm32v7
+            docker_platform: linux/arm/v7
+          - name: arm64v8
+            docker_platform: linux/arm64/v8
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+            submodules: recursive
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+        with:
+          image: tonistiigi/binfmt:latest
+          platforms: all
+      - name: Run tests on ${{ matrix.platform.name }}
+        run: docker run --rm --interactive --platform ${{ matrix.platform.docker_platform }} --mount type=bind,source=$(pwd),target=/host ${{ matrix.platform.name }}/ubuntu:latest bash -c "apt update && apt install -y cpanminus make gcc openssl libssl-dev zlib1g-dev && perl -V && cd /host && cpanm --notest --verbose --installdeps . || find /root/.cpanm/work/ -type f | xargs cat; perl Makefile.PL && make test"
+
+  BSDs:
+    runs-on: ubuntu-latest
+
+    name: ${{ matrix.os.pretty_name }} ${{ matrix.os.version }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - name: freebsd
+            pretty_name: FreeBSD 13.5 (OpenSSL default)
+            version: '13.5'
+            pkginstall: pkg install -y p5-ExtUtils-MakeMaker p5-App-cpanminus
+          - name: freebsd
+            pretty_name: FreeBSD 13.5 (OpenSSL 3.5)
+            version: '13.5'
+            pkginstall: pkg install -y p5-ExtUtils-MakeMaker p5-App-cpanminus openssl35
+          - name: freebsd
+            pretty_name: FreeBSD 13.5 (LibreSSL)
+            version: '13.5'
+            pkginstall: pkg install -y p5-ExtUtils-MakeMaker p5-App-cpanminus libressl libressl-devel
+          - name: freebsd
+            pretty_name: FreeBSD 14.3 (OpenSSL default)
+            version: '14.3'
+            pkginstall: pkg install -y p5-ExtUtils-MakeMaker p5-App-cpanminus
+          - name: freebsd
+            pretty_name: FreeBSD 14.3 (OpenSSL 3.5)
+            version: '14.3'
+            pkginstall: pkg install -y p5-ExtUtils-MakeMaker p5-App-cpanminus openssl35
+          - name: freebsd
+            pretty_name: FreeBSD 14.3 (LibreSSL)
+            version: '14.3'
+            pkginstall: pkg install -y p5-ExtUtils-MakeMaker p5-App-cpanminus libressl libressl-devel
+          - name: openbsd
+            pretty_name: OpenBSD
+            version: '7.6'
+            pkginstall: pkg_add curl
+          - name: openbsd
+            pretty_name: OpenBSD
+            version: '7.7'
+            pkginstall: pkg_add curl
+          - name: netbsd
+            pretty_name: NetBSD
+            version: '9.4'
+            pkginstall: sudo pkgin update && sudo pkgin -y install p5-App-cpanminus
+          - name: netbsd
+            pretty_name: NetBSD
+            version: '10.1'
+            pkginstall: sudo pkgin update && sudo pkgin -y install p5-App-cpanminus
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Test on ${{ matrix.os.name }}
+        uses: cross-platform-actions/action@master
+        env:
+          AUTOMATED_TESTING: 1
+        with:
+          operating_system: ${{ matrix.os.name }}
+          version: ${{ matrix.os.version }}
+          shell: bash
+
+          # Makefile.PL interacts with the TTY, which tricks up the runner.
+          # Thus the piped “echo n”.
+          #
+          run: |
+            sudo ${{ matrix.os.pkginstall }};
+            which cpanm || curl https://cpanmin.us | perl - --sudo App::cpanminus
+            cpanm --verbose --notest --installdeps --with-configure .;
+            echo n | perl Makefile.PL;
+            make test;
+
+  cygwin:
+    runs-on: windows-latest
+
+    steps:
+      - name: Set up Cygwin
+        uses: cygwin/cygwin-install-action@master
+        with:
+            platform: x86_64
+            packages: perl perl_base perl-ExtUtils-MakeMaker make gcc-g++ libcrypt-devel libssl-devel curl bash
+      - uses: actions/checkout@v4
+        with:
+            submodules: recursive
+      - run: perl -V
+        shell: C:\cygwin\bin\bash.exe --login --norc -eo pipefail -o igncr '{0}'
+      - name: Install cpanm
+        run: curl https://cpanmin.us | perl - App::cpanminus
+        shell: C:\cygwin\bin\bash.exe --login --norc -eo pipefail -o igncr '{0}'
+      - name: Install Dependencies
+        run: cd $GITHUB_WORKSPACE; cpanm --verbose --notest --installdeps --with-configure .
+        shell: C:\cygwin\bin\bash.exe --login --norc -eo pipefail -o igncr '{0}'
+      - name: perl Makefile.PL
+        run: cd $GITHUB_WORKSPACE; perl Makefile.PL
+        shell: C:\cygwin\bin\bash.exe --login --norc -eo pipefail -o igncr '{0}'
+      - name: make
+        run: cd $GITHUB_WORKSPACE; make -j3 -j3
+        shell: C:\cygwin\bin\bash.exe --login --norc -eo pipefail -o igncr '{0}'
+      - name: make test
+        run: cd $GITHUB_WORKSPACE; make test
+        shell: C:\cygwin\bin\bash.exe --login --norc -eo pipefail -o igncr '{0}'
+
