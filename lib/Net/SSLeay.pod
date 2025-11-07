@@ -1,3 +1,4 @@
+
 =encoding utf-8
 
 =head1 NAME
@@ -7073,6 +7074,15 @@ Returns a new, empty, STACK_OF(X509) structure.
     #
     # returns: value corresponding to openssl's STACK_OF(X509) structure
 
+=item * sk_X509_free
+
+Free an allocated STACK_OF(X509) structure.
+
+    Net::SSLeay::sk_X509_free($sk);
+    # $sk - value corresponding to openssl's STACK_OF(X509) structure
+    #
+    # returns: no return value
+
 =item * sk_X509_push
 
 Pushes an X509 structure onto a STACK_OF(X509) structure.
@@ -8336,6 +8346,15 @@ For more details about $trust identifier check L</CTX_set_trust>.
 
 =over
 
+=item * sk_X509_INFO_free
+
+Free an allocated STACK_OF(X509_INFO) structure.
+
+    Net::SSLeay::sk_X509_INFO_free($sk);
+    # $sk - value corresponding to openssl's STACK_OF(X509_INFO) structure
+    #
+    # returns: no return value
+
 =item * sk_X509_INFO_num
 
 Returns the number of values in a STACK_OF(X509_INFO) structure.
@@ -9018,6 +9037,8 @@ B<COMPATIBILITY:> not available in Net-SSLeay-1.42 and before; requires at least
     my $md = Net::SSLeay::EVP_sha512();
     #
     # returns: value corresponding to openssl's EVP_MD structure
+
+B<COMPATIBILITY:> no longer available in LibreSSL 3.9.0 and later
 
 =item * EVP_add_digest
 
